@@ -5,87 +5,131 @@ class Firstscene extends Phaser.Scene {
     }
 
     init() {
-
         console.log('Scene Firstscene');
+        this.gameover = false;
+        this.respawn = 0;
     }
 
     preload() {
 
-        this.load.image('background', 'assets/background.png');
-        this.load.image("bullet", "assets/bullet.png");
-        this.load.spritesheet('doggysprite','assets/doggysprite.png',
-             { frameWidth: 50, frameHeight: 66 }
+        // LOAD IMAGES AND SPRITES
+
+        this.load.image('background', 'assets/background.png')
+                 .image("bullet", "assets/bullet.png")
+                 .image("virus", "assets/virus.png")
+                 .spritesheet('doggysprite', 'assets/doggysprite.png',
+                      { frameWidth: 50, frameHeight: 66 }
         );
     }
 
     create() {
-      
-        this.background = this.add.image(this.sys.game.canvas.width/2, this.sys.game.canvas.height/2, 'background');
-      
+
+        // CREATE KEYBOARD CURSOS
         this.cursors = this.input.keyboard.createCursorKeys();
-      
 
-        // const keys = Phaser.Input.Keyboard.KeyCodes;
-        // this.keyZ = this.input.keyboard.addKey(keys.Z);
+        // CREATE SPRITES
 
-        // Creamos el personaje en la posicíon X:320 e Y:0 y le añadimos físicas.
-        this.player = this.physics.add.sprite(this.sys.game.canvas.width/2, this.sys.game.canvas.height-100, 'doggysprite');
-        // Hacemos que en las caídas tenga un pequeño rebote
-        this.player.setBounce(0.2);
-        // El personaje colisionará con los bordes del juego
-        this.player.setCollideWorldBounds(true);
-        this.player.setGravityY(300);
-        this.player.setDepth(1);
+        this.background = this.add.image(this.sys.game.canvas.width / 2, this.sys.game.canvas.height / 2, 'background');
+        this.virus = this.physics.add.group({
+            defaultKey: 'virus'
+        });      
+
+        this.player = this.physics.add.sprite(this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite')
+                   .setBounce(0.2)
+                   .setCollideWorldBounds(true)
+                   .setGravityY(300)
+                   .setDepth(1);
 
         this.animatePlayer();
+
+
         this.bullets = this.physics.add.group({
-            defaultKey: 'bullet',
-            // maxSize: 1000
+            defaultKey: 'bullet'
         });
+
+
+        // ADD COLIDERS BETWEEN SPRITES
+
+        this.physics.add.collider(this.player, this.virus, this.hitPlayer, null, this);
+        this.physics.add.collider(this.bullets, this.virus, this.hitvirus, null, this);
     }
-
-
 
     update(time, delta) {
 
-        //  if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
-        if (this.input.keyboard.checkDown(this.cursors.space,250)) {
-           this.player.setVelocity(0, 0);         
-           this.player.anims.play('turn');
-           this.fire(this.player);
+        if (time > this.respawn) {
+            this.newVirus();
+            this.respawn += 3000;
+        }
+
+        if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
+            this.player.setVelocity(0, 0)
+                .anims.play('turn');
+            this.fire(this.player);
+
         }
         else if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-160);
-            this.player.anims.play('left', true);
+            this.player.setVelocityX(-160)
+                .anims.play('left', true);
         }
         else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(160);
-            this.player.anims.play('right', true);
+            this.player.setVelocityX(160)
+                .anims.play('right', true);
         }
         else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
+            this.player.setVelocityX(0)
+                .anims.play('turn');
+        }
+    }
+
+
+    // CUSTOM FUNCTIONS
+
+    hitPlayer(player, virus) {
+        this.scene.pause();
+    }
+
+    hitvirus(bullet, virus) {
+        // this.gameçover = true;
+        virus.destroy();
+        bullet.destroy();
+    }
+
+
+    newVirus() {
+
+        var avirus = this.virus.get(Phaser.Math.Between(0, this.game.config.width), 20);
+        if (avirus) {
+            avirus.setActive(true)
+                  .setVisible(true)
+                  .setGravityY(300)
+                  .setCollideWorldBounds(true)
+                  .setCircle(45)
+                  .setBounce(1, 1)
+                  .setVelocityX(
+                (Phaser.Math.Between(0, 1) ? 100 : -100)
+            );
+
         }
     }
 
     fire(object) {
-        var bullet = this.bullets.get(object.x+17, object.y-30);
+        var bullet = this.bullets.get(object.x + 17, object.y - 30);
         if (bullet) {
-            bullet.setActive(true);
-            bullet.setVisible(true);
-            bullet.body.velocity.y = -200;
+            bullet.setActive(true)
+                  .setVisible(true)
+                  .body.velocity.y = -200;
         }
         bullet.outOfBoundsKill = true;
-        
+
     }
 
-    animatePlayer(){
+    animatePlayer() {
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('doggysprite', { start: 0, end: 3 }),
             frameRate: 10,
             repeat: -1
-            
+
         });
 
         this.anims.create({
@@ -101,7 +145,7 @@ class Firstscene extends Phaser.Scene {
             frameRate: 10,
             repeat: -1
         });
-     
+
     }
 }
 
