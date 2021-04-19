@@ -20,9 +20,25 @@ class Firstscene extends Phaser.Scene {
                  .spritesheet('doggysprite', 'assets/doggysprite.png',
                       { frameWidth: 50, frameHeight: 66 }
         );
+
+        // LOAD AUDIOS
+
+        this.load.audio('pop',['assets/pop.wav']);
+        this.load.audio('shot',['assets/shot.wav']);
+        this.load.audio('killed',['assets/killed.wav']);
+        this.load.audio('rebound',['assets/rebound.wav']);
     }
 
     create() {
+
+        // CREATE AUDIOS
+
+        this.popSound = this.sound.add('pop');
+        this.shotSound = this.sound.add('shot');
+        this.killedSound = this.sound.add('killed');
+        this.reboundSound = this.sound.add('rebound');
+
+
 
         // CREATE KEYBOARD CURSOS
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -52,10 +68,22 @@ class Firstscene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.virus, this.hitPlayer, null, this);
         this.physics.add.collider(this.bullets, this.virus, this.hitvirus, null, this);
+
+    
+
     }
 
     update(time, delta) {
 
+        // if( true ) { console.log(this.virus.children.get());}
+      
+        this.virus.children.each(function(enemy) {
+            if(enemy.body.y == 0){
+                this.reboundSound.play();
+            }
+          }, this);
+
+ 
         if (time > this.respawn) {
             this.newVirus();
             this.respawn += 3000;
@@ -85,6 +113,7 @@ class Firstscene extends Phaser.Scene {
     // CUSTOM FUNCTIONS
 
     hitPlayer(player, virus) {
+        this.killedSound.play();
         this.scene.pause();
     }
 
@@ -92,6 +121,7 @@ class Firstscene extends Phaser.Scene {
         // this.gameçover = true;
         virus.destroy();
         bullet.destroy();
+        this.popSound.play();
     }
 
 
@@ -106,9 +136,9 @@ class Firstscene extends Phaser.Scene {
                   .setCircle(45)
                   .setBounce(1, 1)
                   .setVelocityX(
-                (Phaser.Math.Between(0, 1) ? 100 : -100)
-            );
-
+                                  (Phaser.Math.Between(0, 1) ? 100 : -100)
+                             );
+            // console.log(avirus.body.y);
         }
     }
 
@@ -120,6 +150,7 @@ class Firstscene extends Phaser.Scene {
                   .body.velocity.y = -200;
         }
         bullet.outOfBoundsKill = true;
+        this.shotSound.play();
 
     }
 
