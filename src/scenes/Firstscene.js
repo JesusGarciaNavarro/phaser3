@@ -23,10 +23,14 @@ class Firstscene extends Phaser.Scene {
 
         // LOAD AUDIOS
 
-        this.load.audio('pop',['assets/pop.wav']);
-        this.load.audio('shot',['assets/shot.wav']);
-        this.load.audio('killed',['assets/killed.wav']);
-        this.load.audio('rebound',['assets/rebound.wav']);
+        this.load.audio('pop',['assets/pop.wav'])
+                 .audio('shot',['assets/shot.wav'])
+                 .audio('killed',['assets/killed.wav'])
+                 .audio('rebound',['assets/rebound.wav'])
+                 .audio('bgmusic',['assets/bgmusic.mp3']);
+
+
+            
     }
 
     create() {
@@ -37,6 +41,12 @@ class Firstscene extends Phaser.Scene {
         this.shotSound = this.sound.add('shot');
         this.killedSound = this.sound.add('killed');
         this.reboundSound = this.sound.add('rebound');
+
+        // BACKGROUND MUSIC
+
+        this.backgroundMusic = this.sound.add('bgmusic');
+        this.backgroundMusic.loop = true;
+        this.backgroundMusic.play();
 
 
 
@@ -71,6 +81,8 @@ class Firstscene extends Phaser.Scene {
 
     
 
+
+
     }
 
     update(time, delta) {
@@ -86,7 +98,7 @@ class Firstscene extends Phaser.Scene {
  
         if (time > this.respawn) {
             this.newVirus();
-            this.respawn += 3000;
+            this.respawn += 3000; 
         }
 
         if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
@@ -114,6 +126,7 @@ class Firstscene extends Phaser.Scene {
 
     hitPlayer(player, virus) {
         this.killedSound.play();
+        this.backgroundMusic.stop();
         this.scene.pause();
     }
 
@@ -127,9 +140,9 @@ class Firstscene extends Phaser.Scene {
 
     newVirus() {
 
-        var avirus = this.virus.get(Phaser.Math.Between(0, this.game.config.width), 20);
-        if (avirus) {
-            avirus.setActive(true)
+        var oneVirus = this.virus.get(Phaser.Math.Between(0, this.game.config.width), 20);
+        if (oneVirus) {
+            oneVirus.setActive(true)
                   .setVisible(true)
                   .setGravityY(300)
                   .setCollideWorldBounds(true)
@@ -138,7 +151,7 @@ class Firstscene extends Phaser.Scene {
                   .setVelocityX(
                                   (Phaser.Math.Between(0, 1) ? 100 : -100)
                              );
-            // console.log(avirus.body.y);
+            // console.log(oneVirus.body.y);
         }
     }
 
