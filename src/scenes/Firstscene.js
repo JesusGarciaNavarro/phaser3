@@ -11,6 +11,42 @@ class Firstscene extends Phaser.Scene {
         this.respawnInterval = 3000;
         this.scoreText;
         this.score = 0;
+        this.lifesCounter = 3;
+        this.lifesText;
+        this.newLife = 100; // Nueva Vida cada X
+        this.enemiesGlobalCounter = 0;
+        this.arrayVirus = [
+            {
+                "type": "virus",
+                "hitsToKill": 1,
+                "active": true,
+                "visible": true,
+                "depth": 2,
+                "gravityY": 300,
+                "colliderWorldBounds": true,
+                "circle": 45,
+                "bounceX": 1,
+                "bounceY": 1,
+                "velocityX": 100,
+            }
+            ,
+            {
+                "type": "virusStrong",
+                "hitsToKill": 4,
+                "active": true,
+                "visible": true,
+                "depth": 2,
+                "gravityY": 400,
+                "colliderWorldBounds": true,
+                "circle": 32,
+                "bounceX": 1,
+                "bounceY": 1,
+                "velocityX": 180,
+            }
+        ]
+
+
+
     }
 
     preload() {
@@ -18,22 +54,24 @@ class Firstscene extends Phaser.Scene {
         // LOAD IMAGES AND SPRITES
 
         this.load.image('background', 'assets/background.png')
-                 .image("bullet", "assets/bullet.png")
-                 .image("virus", "assets/virus.png")
-                 .spritesheet('doggysprite', 'assets/doggysprite.png',
-                      { frameWidth: 50, frameHeight: 66 }
-        );
+            .image("bullet", "assets/bullet.png")
+            .image("virus", "assets/virus.png")
+            .image("virusStrong", "assets/virusStrong.png")
+            .image('life', "assets/life.png")
+            .spritesheet('doggysprite', 'assets/doggysprite.png',
+                { frameWidth: 50, frameHeight: 66 }
+            );
 
         // LOAD AUDIOS
 
-        this.load.audio('pop',['assets/pop.wav'])
-                 .audio('shot',['assets/shot.wav'])
-                 .audio('killed',['assets/killed.wav'])
-                 .audio('rebound',['assets/rebound.wav'])
-                 .audio('bgmusic',['assets/bgmusic.mp3']);
+        this.load.audio('pop', ['assets/pop.wav'])
+            .audio('shot', ['assets/shot.wav'])
+            .audio('killed', ['assets/killed.wav'])
+            .audio('rebound', ['assets/rebound.wav'])
+            .audio('bgmusic', ['assets/bgmusic.mp3']);
 
 
-            
+
     }
 
     create() {
@@ -41,8 +79,10 @@ class Firstscene extends Phaser.Scene {
 
         // SCORE
 
-        this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 65, 0, 'SCORE: 0', { font: '18px Arial', fill: '#6368BC' });
+        this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 65, 0, 'SCORE: ' + this.score, { fontStyle: 'strong', font: '19px Arial', fill: '#6368BC' });
         this.scoreText.setDepth(1);
+        this.lifesText = this.add.text(50, 10, 'X ' + this.lifesCounter, { fontStyle: 'strong', align: 'right', font: '24px Arial', fill: 'beige' });
+        this.lifesText.setDepth(1);
 
         // CREATE AUDIOS
 
@@ -65,18 +105,27 @@ class Firstscene extends Phaser.Scene {
         // CREATE SPRITES
 
         this.background = this.add.image(this.sys.game.canvas.width / 2, this.sys.game.canvas.height / 2, 'background');
-
+        this.lifeSprite = this.add.image(30, 18, 'life');
+        this.lifeSprite.setDepth(2);
 
         this.virus = this.physics.add.group({
             defaultKey: 'virus'
-        });      
-     
+        });
+
+
+        this.virusStrong = this.physics.add.group({
+            defaultKey: 'virusStrong'
+        });
+  
+
 
         this.player = this.physics.add.sprite(this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite')
-                   .setBounce(0.2)
-                   .setCollideWorldBounds(true)
-                   .setGravityY(300)
-                   .setDepth(1);
+            .setBounce(0.2)
+            .setCollideWorldBounds(true)
+            .setGravityY(300)
+            .setDepth(1);
+
+        this.player.body.setSize(35,66,35,30) // custom mask => setSize(width, height, XinSprite, YinSprite)
 
         this.animatePlayer();
 
@@ -89,36 +138,48 @@ class Firstscene extends Phaser.Scene {
         // ADD COLIDERS BETWEEN SPRITES
 
         this.physics.add.collider(this.player, this.virus, this.hitPlayer, null, this);
-        this.physics.add.collider(this.bullets, this.virus, this.hitvirus, null, this);
-
-    
-
+        this.physics.add.overlap(this.player, this.virusStrong, this.hitPlayer, null, this);
+        this.physics.add.collider(this.bullets, this.virus, this.hitvirus
+            , null, this);
+        this.physics.add.collider(this.bullets, this.virusStrong, this.hitvirus, null, this);
 
 
     }
 
     update(time, delta) {
 
-       
-      
-        this.virus.children.each(function(enemy) {
-            if(enemy.body.y == 0){
+
+        this.virus.children.each(function (enemy) {
+            if (enemy.body.y == 0) {
                 this.reboundSound.play();
-            }
-          }, this);
+               
+            } 
+        }, this);
 
 
 
         //  ENEMIES RESPAWN CONTROL
 
-        if (time >  this.respawnInterval && this.respawn == 0){
+       
+
+        if (time > this.respawnInterval && this.respawn == 0) {
             this.respawn = Math.trunc(time);
-           
+
         }
- 
+
         if (time > this.respawn) {
-            this.newVirus();
-            this.respawn +=  this.respawnInterval ; 
+         
+            if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
+
+                this.respawnInterval -= 100;
+                console.log(this.respawnInterval)
+                this.newVirus(this.arrayVirus[1]);
+            }
+            else {
+                this.newVirus(this.arrayVirus[0]);
+            }
+
+            this.respawn += this.respawnInterval;
         }
 
         // INPUT CONTROL
@@ -147,52 +208,84 @@ class Firstscene extends Phaser.Scene {
     // CUSTOM FUNCTIONS
 
     hitPlayer(player, avirus) {
+
         this.killedSound.play();
         this.backgroundMusic.stop();
 
+
+
+        this.lifesCounter--;
+        this.lifesText.setText('X ' + this.lifesCounter);
 
         // this.scene.pause();
 
 
         alert('Game over!');
-     
-        this.scene.restart();
+
+        if (this.lifesCounter < 0) {
+            this.scene.restart();
+        }
+
+
         this.virus.clear(true, true); // clear( [removeFromScene] [, destroyChild])
-        this.bullets.clear(true,true);
+        this.virusStrong.clear(true,true);
+        this.bullets.clear(true, true);
     }
 
     hitvirus(bullet, virus) {
-        virus.destroy();
+
         bullet.destroy();
-        this.popSound.play();
-        this.score += 100;
-        this.scoreText.setText('SCORE: '+ this.score)
+        virus.hitsToKill--;
+
+        if (virus.hitsToKill == 0){
+            virus.destroy();
+            this.popSound.play();
+            this.score += 10;
+            this.scoreText.setText('SCORE: ' + this.score);
+    
+            if (this.score % this.newLife == 0){
+                this.lifesCounter++;
+                this.lifesText.setText('X ' + this.lifesCounter);
+            }
+        }
+
     }
 
 
-    newVirus() {
-
-        var oneVirus = this.virus.get(Phaser.Math.Between(0, this.game.config.width), 20);
-        if (oneVirus) {
-            oneVirus.setActive(true)
-                  .setVisible(true)
-                  .setGravityY(300)
-                  .setCollideWorldBounds(true)
-                  .setCircle(45)
-                  .setBounce(1, 1)
-                  .setVelocityX(
-                                  (Phaser.Math.Between(0, 1) ? 100 : -100)
-                             );
-           
+    newVirus(enemy) {
+        this.enemiesGlobalCounter++;
+        var oneVirus;
+        switch (enemy.type) {
+            case 'virusStrong':
+                oneVirus = this.virusStrong.get(Phaser.Math.Between(0, this.game.config.width), 20);
+                break;
+            default:
+                oneVirus = this.virus.get(Phaser.Math.Between(0, this.game.config.width), 20);
         }
+   
+      
+        if (oneVirus) {
+            oneVirus.setActive(enemy.active)
+                .setVisible(enemy.visible)
+                .setDepth(enemy.depth)
+                .setGravityY(enemy.gravityY)
+                .setCollideWorldBounds(enemy.colliderWorldBounds)
+                .setCircle(enemy.circle)
+                .setBounce(enemy.bounceX, enemy.bounceY)
+                .setVelocityX(enemy.velocityX)
+                .hitsToKill = enemy.hitsToKill;
+
+        }
+
     }
 
     fire(object) {
         var bullet = this.bullets.get(object.x + 17, object.y - 30);
         if (bullet) {
             bullet.setActive(true)
-                  .setVisible(true)
-                  .body.velocity.y = -200;
+                .setVisible(true)
+                .setDepth(2)
+                .body.velocity.y = -200;
         }
         bullet.outOfBoundsKill = true;
         this.shotSound.play();
