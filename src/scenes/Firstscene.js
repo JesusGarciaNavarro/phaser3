@@ -8,6 +8,9 @@ class Firstscene extends Phaser.Scene {
         console.log('Scene Firstscene');
         this.gameover = false;
         this.respawn = 0;
+        this.respawnInterval = 3000;
+        this.scoreText;
+        this.score = 0;
     }
 
     preload() {
@@ -35,6 +38,12 @@ class Firstscene extends Phaser.Scene {
 
     create() {
 
+
+        // SCORE
+
+        this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 65, 0, 'SCORE: 0', { font: '18px Arial', fill: '#6368BC' });
+        this.scoreText.setDepth(1);
+
         // CREATE AUDIOS
 
         this.popSound = this.sound.add('pop');
@@ -56,9 +65,12 @@ class Firstscene extends Phaser.Scene {
         // CREATE SPRITES
 
         this.background = this.add.image(this.sys.game.canvas.width / 2, this.sys.game.canvas.height / 2, 'background');
+
+
         this.virus = this.physics.add.group({
             defaultKey: 'virus'
         });      
+     
 
         this.player = this.physics.add.sprite(this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite')
                    .setBounce(0.2)
@@ -87,7 +99,7 @@ class Firstscene extends Phaser.Scene {
 
     update(time, delta) {
 
-        // if( true ) { console.log(this.virus.children.get());}
+       
       
         this.virus.children.each(function(enemy) {
             if(enemy.body.y == 0){
@@ -95,11 +107,21 @@ class Firstscene extends Phaser.Scene {
             }
           }, this);
 
+
+
+        //  ENEMIES RESPAWN CONTROL
+
+        if (time >  this.respawnInterval && this.respawn == 0){
+            this.respawn = Math.trunc(time);
+           
+        }
  
         if (time > this.respawn) {
             this.newVirus();
-            this.respawn += 3000; 
+            this.respawn +=  this.respawnInterval ; 
         }
+
+        // INPUT CONTROL
 
         if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
             this.player.setVelocity(0, 0)
@@ -124,17 +146,27 @@ class Firstscene extends Phaser.Scene {
 
     // CUSTOM FUNCTIONS
 
-    hitPlayer(player, virus) {
+    hitPlayer(player, avirus) {
         this.killedSound.play();
         this.backgroundMusic.stop();
-        this.scene.pause();
+
+
+        // this.scene.pause();
+
+
+        alert('Game over!');
+     
+        this.scene.restart();
+        this.virus.clear(true, true); // clear( [removeFromScene] [, destroyChild])
+        this.bullets.clear(true,true);
     }
 
     hitvirus(bullet, virus) {
-        // this.gameçover = true;
         virus.destroy();
         bullet.destroy();
         this.popSound.play();
+        this.score += 100;
+        this.scoreText.setText('SCORE: '+ this.score)
     }
 
 
@@ -151,7 +183,7 @@ class Firstscene extends Phaser.Scene {
                   .setVelocityX(
                                   (Phaser.Math.Between(0, 1) ? 100 : -100)
                              );
-            // console.log(oneVirus.body.y);
+           
         }
     }
 
