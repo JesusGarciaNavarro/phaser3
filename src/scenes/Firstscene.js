@@ -1,3 +1,5 @@
+import Player from "../clasess/player.js"; // Ruta correcta al archivo Js
+
 class Firstscene extends Phaser.Scene {
 
     constructor() {
@@ -118,16 +120,7 @@ class Firstscene extends Phaser.Scene {
         });
   
 
-
-        this.player = this.physics.add.sprite(this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite')
-            .setBounce(0.2)
-            .setCollideWorldBounds(true)
-            .setGravityY(300)
-            .setDepth(1);
-
-        this.player.body.setSize(35,66,35,30) // custom mask => setSize(width, height, XinSprite, YinSprite)
-
-        this.animatePlayer();
+        this.player = new Player(this,this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite');
 
 
         this.bullets = this.physics.add.group({
@@ -172,7 +165,7 @@ class Firstscene extends Phaser.Scene {
             if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
 
                 this.respawnInterval -= 100;
-                console.log(this.respawnInterval)
+                
                 this.newVirus(this.arrayVirus[1]);
             }
             else {
@@ -292,30 +285,7 @@ class Firstscene extends Phaser.Scene {
 
     }
 
-    animatePlayer() {
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('doggysprite', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
 
-        });
-
-        this.anims.create({
-            key: 'turn',
-            frames: [{ key: 'doggysprite', frame: 4 }],
-            frameRate: 20,
-            // delay: 1.1
-        });
-
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('doggysprite', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-    }
 }
 
 export default Firstscene;
