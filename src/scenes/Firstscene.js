@@ -19,6 +19,7 @@ class Firstscene extends Phaser.Scene {
         this.lifesText;
         this.newLife = 100; // Nueva Vida cada X
         this.enemiesGlobalCounter = 0;
+        this.invincible = false;
 
     }
 
@@ -83,7 +84,7 @@ class Firstscene extends Phaser.Scene {
 
         // ADD COLIDERS BETWEEN SPRITES        
         this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup], this.hitPlayer, null, this);
-        this.physics.add.collider(this.bullets,  [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
+        this.physics.add.collider(this.bullets, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
 
 
 
@@ -132,26 +133,32 @@ class Firstscene extends Phaser.Scene {
 
     // CUSTOM FUNCTIONS
 
-    hitPlayer(player, avirus) {
+    hitPlayer(player, enemy) {
 
-        this.killedSound.play();
-        this.backgroundMusic.stop();
-        this.lifesCounter--;
-        this.lifesText.setText('X ' + this.lifesCounter);
+        if (!this.invincible) {
+            this.invincible = true;
+            this.killedSound.play();
+            this.lifesCounter--;
+            this.lifesText.setText('X ' + this.lifesCounter);
+            enemy.destroy();
+            player.setTint(0x1abc9c);
+            this.time.addEvent({
+                delay: 2000,
+                callback: () => {
+                    this.invincible = false;
+                    player.clearTint();
+                }
+            });
 
-        // this.scene.pause();
+            if (this.lifesCounter < 0) {
+                alert("GAME OVER");
+                this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
+                this.bacteriumGroup.clear(true, true);
+                this.bullets.clear(true, true);
+                this.scene.restart();
+            }
 
-
-        alert('Game over!');
-
-        if (this.lifesCounter < 0) {
-            this.scene.restart();
         }
-
-
-        this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
-        this.bacteriumGroup.clear(true, true);
-        this.bullets.clear(true, true);
     }
 
     hitEnemies(bullet, enemy) {
@@ -160,7 +167,7 @@ class Firstscene extends Phaser.Scene {
         bullet.destroy();
 
         enemy.hitsToKill--;
-       
+
         if (enemy.hitsToKill == 0) {
             enemy.destroy();
             this.popSound.play();
@@ -179,13 +186,13 @@ class Firstscene extends Phaser.Scene {
     addEnemy(type) {
         this.reboundSound.play();
         this.enemiesGlobalCounter++;
-      
+
         switch (type) {
             case 0:
-                 this.bacteriumGroup.newItem();
+                this.bacteriumGroup.newItem();
                 break;
             default:
-                 this.virusGroup.newItem();
+                this.virusGroup.newItem();
         }
     }
 
