@@ -1,6 +1,7 @@
 import Bacterium from "../clasess/bacterium.js";
 import Player from "../clasess/player.js";
 import Virus from "../clasess/virus.js";
+import Bullet from "../clasess/bullet.js";
 
 class Firstscene extends Phaser.Scene {
 
@@ -72,19 +73,19 @@ class Firstscene extends Phaser.Scene {
         this.background = this.add.image(this.sys.game.canvas.width / 2, this.sys.game.canvas.height / 2, 'background');
         this.lifeSprite = this.add.image(30, 18, 'life').setDepth(2);
 
-        // GROUPS
-        this.virusGroup = new Virus(this.physics.world, this);
-        this.bacteriumGroup = new Bacterium(this.physics.world, this);
-        this.bullets = this.physics.add.group({
-            defaultKey: 'bullet'
-        });
-
         // PLAYER
         this.player = new Player(this, this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite');
 
+
+        // GROUPS
+        this.virusGroup = new Virus(this.physics.world, this);
+        this.bacteriumGroup = new Bacterium(this.physics.world, this);
+        this.bulletsGroup = new Bullet(this.physics.world, this);
+
+
         // ADD COLIDERS BETWEEN SPRITES        
         this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup], this.hitPlayer, null, this);
-        this.physics.add.collider(this.bullets, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
+        this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
 
 
 
@@ -113,7 +114,7 @@ class Firstscene extends Phaser.Scene {
         if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
             this.player.setVelocity(0, 0)
                 .anims.play('turn');
-            this.fire(this.player);
+            this.fire();
 
         }
         else if (this.cursors.left.isDown) {
@@ -154,7 +155,7 @@ class Firstscene extends Phaser.Scene {
                 alert("GAME OVER");
                 this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
                 this.bacteriumGroup.clear(true, true);
-                this.bullets.clear(true, true);
+                this.bulletsGroup.clear(true, true);
                 this.scene.restart();
             }
 
@@ -196,17 +197,9 @@ class Firstscene extends Phaser.Scene {
         }
     }
 
-    fire(gun) {
-        var bullet = this.bullets.get(gun.x + 17, gun.y - 30);
-        if (bullet) {
-            bullet.setActive(true)
-                .setVisible(true)
-                .setDepth(2)
-                .body.velocity.y = -200;
-        }
-        bullet.outOfBoundsKill = true;
-        this.shotSound.play();
-
+    fire() {
+        this.bulletsGroup.newItem();
+        
     }
 
 
