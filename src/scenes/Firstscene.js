@@ -18,9 +18,11 @@ class Firstscene extends Phaser.Scene {
         this.score = 0;
         this.lifesCounter = 3;
         this.lifesText;
-        this.newLife = 100; // Nueva Vida cada X
+        this.newLife = 250; // Nueva Vida cada X puntuación
         this.enemiesGlobalCounter = 0;
         this.invincible = false;
+        this.ammo = 30;
+        this.ammoText;
 
     }
 
@@ -34,6 +36,8 @@ class Firstscene extends Phaser.Scene {
             .image("virus", "sprites/virus.png")
             .image("bacterium", "sprites/bacterium.png")
             .image('life', "sprites/life.png")
+            .image('soap', 'sprites/soap.png')
+            .image('reload', 'sprites/reload.png')
             .spritesheet('doggysprite', 'sprites/doggysprite.png',
                 { frameWidth: 50, frameHeight: 66 }
             );
@@ -49,11 +53,14 @@ class Firstscene extends Phaser.Scene {
     create() {
 
 
-        // SCORE
+        // TEXTS
         this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 65, 0, 'SCORE: ' + this.score, { fontStyle: 'strong', font: '19px Arial', fill: '#6368BC' });
         this.scoreText.setDepth(1);
         this.lifesText = this.add.text(50, 10, 'X ' + this.lifesCounter, { fontStyle: 'strong', align: 'right', font: '24px Arial', fill: 'beige' });
         this.lifesText.setDepth(1);
+        this.ammoText = this.add.text(this.sys.game.canvas.width - 150, 10, 'AMMO: ' + this.ammo, { fontStyle: 'strong', align: 'right', font: '24px Arial', fill: 'beige' });
+        this.ammoText.setDepth(1);
+
 
         // CREATE AUDIOS
         this.popSound = this.sound.add('pop');
@@ -71,7 +78,10 @@ class Firstscene extends Phaser.Scene {
 
         // CREATE SPRITES
         this.background = this.add.image(this.sys.game.canvas.width / 2, this.sys.game.canvas.height / 2, 'background');
-        this.lifeSprite = this.add.image(30, 18, 'life').setDepth(2);
+        this.lifeSprite = this.add.image(30, 18, 'life').setDepth(1);
+        this.soapImage = this.physics.add.image(40, this.sys.game.canvas.height - 30, 'soap').setActive(true).setDepth(1).setVisible(false);
+        this.reloadImage = this.add.image(50, this.sys.game.canvas.height - 80, 'reload');
+        this.reloadImage.setVisible(false);
 
         // PLAYER
         this.player = new Player(this, this.sys.game.canvas.width / 2, this.sys.game.canvas.height, 'doggysprite');
@@ -86,6 +96,9 @@ class Firstscene extends Phaser.Scene {
         // ADD COLIDERS BETWEEN SPRITES        
         this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup], this.hitPlayer, null, this);
         this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
+        this.physics.add.overlap(this.player, this.soapImage, this.reloadAmmo, null, this);
+
+
 
 
 
@@ -94,14 +107,15 @@ class Firstscene extends Phaser.Scene {
     update(time, delta) {
 
         //  ENEMIES RESPAWN CONTROL
-        if (time > this.respawnInterval && this.respawn == 0) {
-            this.respawn = Math.trunc(time);
-        }
 
         if (time > this.respawn) {
 
             if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
-                this.respawnInterval -= 100;
+
+                if (this.respawnInterval > 600) {
+                    this.respawnInterval -= 100;
+                }
+
                 this.addEnemy(0);
             }
             else {
@@ -134,6 +148,15 @@ class Firstscene extends Phaser.Scene {
 
     // CUSTOM FUNCTIONS
 
+
+    reloadAmmo() {
+        // console.log("colide")
+        this.ammo = 30;
+        this.reloadImage.setVisible(false);
+        this.soapImage.setVisible(false);
+        this.ammoText.setText('AMMO: ' + this.ammo);
+    }
+
     hitPlayer(player, enemy) {
 
         if (!this.invincible) {
@@ -144,7 +167,7 @@ class Firstscene extends Phaser.Scene {
             enemy.destroy();
             player.setTint(0x1abc9c);
             this.time.addEvent({
-                delay: 2000,
+                delay: 1000,
                 callback: () => {
                     this.invincible = false;
                     player.clearTint();
@@ -198,9 +221,19 @@ class Firstscene extends Phaser.Scene {
     }
 
     fire() {
-        this.bulletsGroup.newItem();
-        this.shotSound.play();
-        
+        if (this.ammo >= 1) {
+            this.bulletsGroup.newItem();
+            this.shotSound.play();
+            this.ammo--;
+            this.ammoText.setText('AMMO: ' + this.ammo);
+        }
+
+        if (this.ammo == 0) {
+            this.reloadImage.setVisible(true);
+            this.soapImage.setVisible(true);
+        }
+
+
     }
 
 

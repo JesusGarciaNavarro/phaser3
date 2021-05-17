@@ -21,7 +21,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         .setBounce(0.2)
         .setCollideWorldBounds(true)
         .setGravityY(300)
-        .setDepth(1)
+        .setDepth(2)
         .body.setSize(35,66,35,30); // custom mask => setSize(width, height, XinSprite, YinSprite)
     }
 
