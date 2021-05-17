@@ -29,21 +29,21 @@ class Firstscene extends Phaser.Scene {
         this.load.path = './assets/';
 
         // LOAD IMAGES AND SPRITES
-        this.load.image('background', 'background.png')
-            .image("bullet", "bullet.png")
-            .image("virus", "virus.png")
-            .image("bacterium", "bacterium.png")
-            .image('life', "life.png")
-            .spritesheet('doggysprite', 'doggysprite.png',
+        this.load.image('background', 'backgrounds/background.png')
+            .image("bullet", "sprites/bullet.png")
+            .image("virus", "sprites/virus.png")
+            .image("bacterium", "sprites/bacterium.png")
+            .image('life', "sprites/life.png")
+            .spritesheet('doggysprite', 'sprites/doggysprite.png',
                 { frameWidth: 50, frameHeight: 66 }
             );
 
         // LOAD AUDIOS
-        this.load.audio('pop', ['pop.wav'])
-            .audio('shot', ['shot.wav'])
-            .audio('killed', ['killed.wav'])
-            .audio('rebound', ['rebound.wav'])
-            .audio('bgmusic', ['bgmusic.mp3']);
+        this.load.audio('pop', ['sounds/pop.wav'])
+            .audio('shot', ['sounds/shot.wav'])
+            .audio('killed', ['sounds/killed.wav'])
+            .audio('rebound', ['sounds/rebound.wav'])
+            .audio('bgmusic', ['sounds/bgmusic.mp3']);
     }
 
     create() {
@@ -199,6 +199,7 @@ class Firstscene extends Phaser.Scene {
 
     fire() {
         this.bulletsGroup.newItem();
+        this.shotSound.play();
         
     }
 
