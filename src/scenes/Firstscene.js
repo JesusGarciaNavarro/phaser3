@@ -2,6 +2,7 @@ import Bacterium from "../clasess/bacterium.js";
 import Player from "../clasess/player.js";
 import Virus from "../clasess/virus.js";
 import Bullet from "../clasess/bullet.js";
+import Powerup from "../clasess/powerup.js";
 
 class Firstscene extends Phaser.Scene {
 
@@ -23,6 +24,7 @@ class Firstscene extends Phaser.Scene {
         this.invincible = false;
         this.ammo = 30;
         this.ammoText;
+        this.powerupCounter = 0;
 
     }
 
@@ -38,6 +40,7 @@ class Firstscene extends Phaser.Scene {
             .image('life', "sprites/life.png")
             .image('soap', 'sprites/soap.png')
             .image('reload', 'sprites/reload.png')
+            .image('powerup', 'sprites/powerup.png')
             .spritesheet('doggysprite', 'sprites/doggysprite.png',
                 { frameWidth: 50, frameHeight: 66 }
             );
@@ -91,11 +94,13 @@ class Firstscene extends Phaser.Scene {
         this.virusGroup = new Virus(this.physics.world, this);
         this.bacteriumGroup = new Bacterium(this.physics.world, this);
         this.bulletsGroup = new Bullet(this.physics.world, this);
+        this.powerupGroup = new Powerup(this.physics.world, this);
 
 
         // ADD COLIDERS BETWEEN SPRITES        
-        this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup], this.hitPlayer, null, this);
+        this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup, this.powerupGroup], this.hitPlayer, null, this);
         this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
+        this.physics.add.collider(this.bulletsGroup,  this.powerupGroup, this.hitPowerup, null, this);
         this.physics.add.overlap(this.player, this.soapImage, this.reloadAmmo, null, this);
 
 
@@ -106,9 +111,21 @@ class Firstscene extends Phaser.Scene {
 
     update(time, delta) {
 
-        //  ENEMIES RESPAWN CONTROL
+
+     
+
+        //  ENEMIES RESPAWN CONTROL AFTER GAME OVER
+        if (time > this.respawnInterval && this.respawn == 0) {
+            this.respawn = Math.trunc(time);
+        }
+
 
         if (time > this.respawn) {
+
+            // POWERUP
+            if (this.enemiesGlobalCounter % 15 == 0 && this.enemiesGlobalCounter != 0) {
+                this.powerupGroup.newItem();
+            }
 
             if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
 
@@ -150,11 +167,15 @@ class Firstscene extends Phaser.Scene {
 
 
     reloadAmmo() {
-        // console.log("colide")
-        this.ammo = 30;
-        this.reloadImage.setVisible(false);
-        this.soapImage.setVisible(false);
-        this.ammoText.setText('AMMO: ' + this.ammo);
+
+        if (this.ammo === 0) {
+            this.ammo = 30;
+            var randomX = Phaser.Math.Between(40, this.sys.game.canvas.width - 50);
+            this.reloadImage.setX(randomX).setActive(false).setVisible(false);
+            this.soapImage.setX(randomX).setActive(false).setVisible(false);
+            this.ammoText.setText('AMMO: ' + this.ammo);
+        }
+
     }
 
     hitPlayer(player, enemy) {
@@ -205,6 +226,15 @@ class Firstscene extends Phaser.Scene {
         }
     }
 
+    hitPowerup(bullet, bubble){
+        this.hitEnemies(bullet,bubble);
+        this.powerupCounter = 10;
+
+
+
+
+    }
+
 
 
     addEnemy(type) {
@@ -221,16 +251,22 @@ class Firstscene extends Phaser.Scene {
     }
 
     fire() {
-        if (this.ammo >= 1) {
+        if (this.ammo >= 1 && this.powerupCounter === 0) {
             this.bulletsGroup.newItem();
             this.shotSound.play();
             this.ammo--;
             this.ammoText.setText('AMMO: ' + this.ammo);
         }
 
-        if (this.ammo == 0) {
-            this.reloadImage.setVisible(true);
-            this.soapImage.setVisible(true);
+        if (this.ammo == 0 && this.powerupCounter === 0) {
+            this.reloadImage.setVisible(true).setActive(true);
+            this.soapImage.setVisible(true).setActive(true);
+        }
+
+        if (this.powerupCounter > 0){
+            this.bulletsGroup.newDoubleItem();
+            this.shotSound.play();
+            this.powerupCounter--;
         }
 
 
