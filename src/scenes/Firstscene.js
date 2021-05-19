@@ -11,19 +11,17 @@ class Firstscene extends Phaser.Scene {
     }
 
     init() {
-        console.log('Scene Firstscene');
-        this.gameover = false;
         this.respawn = 0;
         this.respawnInterval = 3000;
-        this.scoreText;
+        this.scoreText = "";
         this.score = 0;
         this.lifesCounter = 3;
-        this.lifesText;
+        this.lifesText = "";
         this.newLife = 250; // Nueva Vida cada X puntuación
         this.enemiesGlobalCounter = 0;
         this.invincible = false;
         this.ammo = 30;
-        this.ammoText;
+        this.ammoText = "";
         this.powerupCounter = 0;
 
     }
@@ -54,7 +52,6 @@ class Firstscene extends Phaser.Scene {
     }
 
     create() {
-
 
         // TEXTS
         this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 65, 0, 'SCORE: ' + this.score, { fontStyle: 'strong', font: '19px Arial', fill: '#6368BC' });
@@ -102,10 +99,6 @@ class Firstscene extends Phaser.Scene {
         this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
         this.physics.add.collider(this.bulletsGroup,  this.powerupGroup, this.hitPowerup, null, this);
         this.physics.add.overlap(this.player, this.soapImage, this.reloadAmmo, null, this);
-
-
-
-
 
     }
 
