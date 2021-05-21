@@ -11,6 +11,8 @@ class Firstscene extends Phaser.Scene {
     }
 
     init() {
+        console.log("FirstScene");
+        //this.scene.launch('Intro');
         this.respawn = 0;
         this.respawnInterval = 3000;
         this.scoreText = "";
@@ -189,11 +191,13 @@ class Firstscene extends Phaser.Scene {
             });
 
             if (this.lifesCounter < 0) {
-                alert("GAME OVER");
+                
                 this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
                 this.bacteriumGroup.clear(true, true);
                 this.bulletsGroup.clear(true, true);
-                this.scene.restart();
+                // this.scene.restart();
+                this.scene.start("Intro");
+
             }
 
         }

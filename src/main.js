@@ -1,5 +1,6 @@
 // IMPORTAR LA PRIMERA ESCENA
 import Firstscene from './scenes/Firstscene.js'
+import Intro from './scenes/Intro.js'
 
 const config = {
 
@@ -13,10 +14,15 @@ const config = {
 
     // OBLIGATORIO
     type: Phaser.AUTO, // WEBGL O CANVAS O AUTOMATICO
-    width: 900, // TAMAÑO DEL LIENZO
-    height: 360,
-    parent: 'container', // ID DEL CONTENEDOR
     backgroundColor: '#34495E', // FONDO DEL LIENZO
+    scale: {
+        width: 900, // TAMAÑO DEL LIENZO
+        height: 360,
+        parent: 'container', // ID DEL CONTENEDOR
+        mode: Phaser.Scale.FIT,
+        // autoCenter: Phaser.Scale.CENTER_BOTH
+        autoCenter: Phaser.Scale.CENTER_HORIZONTALLY
+    },
 
     // INFORMACIÓN DE LA CONSOLA
     banner: {
@@ -40,7 +46,11 @@ const config = {
     },
 
     //ESCENAS DEL JUEGO
-    scene: [Firstscene]
+    scene: [
+        Intro,
+        Firstscene
+        ]
+
 };
 
 
