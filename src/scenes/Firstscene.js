@@ -17,7 +17,7 @@ class Firstscene extends Phaser.Scene {
         this.respawnInterval = 3000;
         this.scoreText = "";
         this.score = 0;
-        this.lifesCounter = 3;
+        this.lifesCounter = 0;
         this.lifesText = "";
         this.newLife = 250; // Nueva Vida cada X puntuación
         this.enemiesGlobalCounter = 0;
@@ -25,6 +25,12 @@ class Firstscene extends Phaser.Scene {
         this.ammo = 30;
         this.ammoText = "";
         this.powerupCounter = 0;
+        this.pause = 0;
+        this.gameOverInterval = 0;
+        this.counter = 10;
+        this.continueText = "";  
+      
+      
 
     }
 
@@ -99,7 +105,7 @@ class Firstscene extends Phaser.Scene {
         // ADD COLIDERS BETWEEN SPRITES        
         this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup, this.powerupGroup], this.hitPlayer, null, this);
         this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
-        this.physics.add.collider(this.bulletsGroup,  this.powerupGroup, this.hitPowerup, null, this);
+        this.physics.add.collider(this.bulletsGroup, this.powerupGroup, this.hitPowerup, null, this);
         this.physics.add.overlap(this.player, this.soapImage, this.reloadAmmo, null, this);
 
     }
@@ -107,53 +113,83 @@ class Firstscene extends Phaser.Scene {
     update(time, delta) {
 
 
-     
-
-        //  ENEMIES RESPAWN CONTROL AFTER GAME OVER
-        if (time > this.respawnInterval && this.respawn == 0) {
-            this.respawn = Math.trunc(time);
-        }
+        if (this.pause == 0) {
 
 
-        if (time > this.respawn) {
 
-            // POWERUP
-            if (this.enemiesGlobalCounter % 15 == 0 && this.enemiesGlobalCounter != 0) {
-                this.powerupGroup.newItem();
+            //  ENEMIES RESPAWN CONTROL AFTER GAME OVER
+            if (time > this.respawnInterval && this.respawn == 0) {
+                this.respawn = Math.trunc(time);
             }
 
-            if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
 
-                if (this.respawnInterval > 600) {
-                    this.respawnInterval -= 100;
+            if (time > this.respawn) {
+
+                // POWERUP
+                if (this.enemiesGlobalCounter % 15 == 0 && this.enemiesGlobalCounter != 0) {
+                    this.powerupGroup.newItem();
                 }
 
-                this.addEnemy(0);
+                if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
+
+                    if (this.respawnInterval > 600) {
+                        this.respawnInterval -= 100;
+                    }
+
+                    this.addEnemy(0);
+                }
+                else {
+                    this.addEnemy(1);
+                }
+                this.respawn += this.respawnInterval;
+            }
+
+            // INPUT CONTROL
+            if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
+                this.player.setVelocity(0, 0)
+                    .anims.play('turn');
+                this.fire();
+
+            }
+            else if (this.cursors.left.isDown) {
+                this.player.setVelocityX(-160)
+                    .anims.play('left', true);
+            }
+            else if (this.cursors.right.isDown) {
+                this.player.setVelocityX(160)
+                    .anims.play('right', true);
             }
             else {
-                this.addEnemy(1);
+                this.player.setVelocityX(0)
+                    .anims.play('turn');
             }
-            this.respawn += this.respawnInterval;
         }
+        else{
+            this.scene.launch('GameOver');  
+            this.scene.pause();
+            // if (this.gameOverInterval == 0){
+            //     this.continueText = this.add.text(150,50,"10", { fontStyle: 'strong', align: 'right', font: '64px Arial', fill: 'red' });  
+      
+            // }
+            // this.gameOverInterval++;
 
-        // INPUT CONTROL
-        if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
-            this.player.setVelocity(0, 0)
-                .anims.play('turn');
-            this.fire();
 
-        }
-        else if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-160)
-                .anims.play('left', true);
-        }
-        else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(160)
-                .anims.play('right', true);
-        }
-        else {
-            this.player.setVelocityX(0)
-                .anims.play('turn');
+            // console.log(this.gameOverInterval, this.counter)
+            // if (this.gameOverInterval % 100 == 0 && this.counter != 0){
+            //     this.counter--;
+            //     this.continueText.setText(this.counter);
+               
+            // }
+            
+            // if (this.counter == 0){
+            //     this.continueText.setText("GAME OVER");
+            // }
+          
+            // // INPUT CONTROL
+            // if (this.input.keyboard.checkDown(this.cursors.space, 250)) {
+            //     // this.scene.restart();
+            //     this.scene.start('GameOver');   
+            // }
         }
     }
 
@@ -179,7 +215,10 @@ class Firstscene extends Phaser.Scene {
             this.invincible = true;
             this.killedSound.play();
             this.lifesCounter--;
-            this.lifesText.setText('X ' + this.lifesCounter);
+            if (this.lifesCounter >= 0){
+                this.lifesText.setText('X ' + this.lifesCounter);
+            }
+          
             enemy.destroy();
             player.setTint(0x1abc9c);
             this.time.addEvent({
@@ -191,13 +230,14 @@ class Firstscene extends Phaser.Scene {
             });
 
             if (this.lifesCounter < 0) {
-                
+
                 this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
                 this.bacteriumGroup.clear(true, true);
                 this.bulletsGroup.clear(true, true);
+                this.pause = 1;
                 // this.scene.restart();
-                this.scene.start("Intro");
-
+                // this.scene.start("GameOver");
+                // this.gameover = this.add.text(0, 0, "CONTINUE", { fontStyle: 'strong', align: 'right', font: '64px Arial', fill: 'red' });
             }
 
         }
@@ -223,8 +263,8 @@ class Firstscene extends Phaser.Scene {
         }
     }
 
-    hitPowerup(bullet, bubble){
-        this.hitEnemies(bullet,bubble);
+    hitPowerup(bullet, bubble) {
+        this.hitEnemies(bullet, bubble);
         this.powerupCounter = 10;
 
 
@@ -260,7 +300,7 @@ class Firstscene extends Phaser.Scene {
             this.soapImage.setVisible(true).setActive(true);
         }
 
-        if (this.powerupCounter > 0){
+        if (this.powerupCounter > 0) {
             this.bulletsGroup.newDoubleItem();
             this.shotSound.play();
             this.powerupCounter--;
