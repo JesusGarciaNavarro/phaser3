@@ -18,6 +18,7 @@ export default class Bacterium extends Phaser.Physics.Arcade.Group {
                     .setBounce(1, 1)
                     .setVelocityX((Phaser.Math.Between(0, 1) ? 180 : -180))
                     .hitsToKill = 4;
+                   
     }
 
     // preUpdate (time, delta)

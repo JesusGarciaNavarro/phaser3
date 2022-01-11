@@ -1,7 +1,8 @@
 // IMPORTAR LA PRIMERA ESCENA
 import Firstscene from './scenes/Firstscene.js'
-import GameOver from './scenes/gameover.js';
+import Gameover from './scenes/Gameover.js';
 import Intro from './scenes/Intro.js'
+import Final from './scenes/Final.js'
 
 const config = {
 
@@ -15,7 +16,7 @@ const config = {
 
     // OBLIGATORIO
     type: Phaser.AUTO, // WEBGL O CANVAS O AUTOMATICO
-    backgroundColor: '#34495E', // FONDO DEL LIENZO
+    backgroundColor: '#FFFFFF', // FONDO DEL LIENZO
     scale: {
         width: 900, // TAMAÑO DEL LIENZO
         height: 360,
@@ -42,7 +43,7 @@ const config = {
         default: 'arcade',
         arcade: {
             // gravity: { y: 300 },
-            debug: false
+            debug: true
         }
     },
 
@@ -50,7 +51,8 @@ const config = {
     scene: [
         Intro,
         Firstscene,
-        GameOver
+        Final,
+        Gameover
         ]
 
 };

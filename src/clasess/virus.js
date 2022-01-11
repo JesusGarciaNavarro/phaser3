@@ -6,6 +6,7 @@ export default class Virus extends Phaser.Physics.Arcade.Group {
       
     }
 
+
     newItem(){
         this.create(
                     Phaser.Math.Between(0, this.scene.scale.width), 20, 'virus')
@@ -18,6 +19,7 @@ export default class Virus extends Phaser.Physics.Arcade.Group {
                     .setBounce(1, 1)
                     .setVelocityX((Phaser.Math.Between(0, 1) ? 100 : -100))
                     .hitsToKill = 1;
+                   
     }
 
     // preUpdate (time, delta)

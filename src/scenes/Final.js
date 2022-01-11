@@ -1,19 +1,18 @@
 import Bacterium from "../clasess/bacterium.js";
 import Player from "../clasess/player.js";
 import Virus from "../clasess/virus.js";
-import Boss from "../clasess/boss.js";
 import Bullet from "../clasess/bullet.js";
 import Powerup from "../clasess/powerup.js";
 
-class Firstscene extends Phaser.Scene {
+class Final extends Phaser.Scene {
 
     constructor() {
-        super('Firstscene');
+        super('Final');
     }
 
     init() {
-        console.log("FirstScene");
-        //this.scene.launch('Intro');
+        console.log("Final");
+        
         this.respawn = 0;
         this.respawnInterval = 3000;
         this.scoreText = "";
@@ -29,10 +28,9 @@ class Firstscene extends Phaser.Scene {
         this.finished = 0;
         this.gameOverInterval = 0;
         this.counter = 10;
-        this.continueText = "";
-        this.scoreLimit = 10;
-
-
+        this.continueText = "";  
+      
+      
 
     }
 
@@ -41,11 +39,9 @@ class Firstscene extends Phaser.Scene {
         this.load.path = './assets/';
 
         // LOAD IMAGES AND SPRITES
-        this.load.image('background', 'backgrounds/background.png')
-            .image('backgroundFinal', 'backgrounds/background-wc.png')
+        this.load.image('background', 'backgrounds/background-wc.png')
             .image("bullet", "sprites/bullet.png")
             .image("virus", "sprites/virus.png")
-            .image("boss", "sprites/boss.png")
             .image("bacterium", "sprites/bacterium.png")
             .image('life', "sprites/life.png")
             .image('soap', 'sprites/soap.png')
@@ -66,7 +62,7 @@ class Firstscene extends Phaser.Scene {
     create() {
 
         // TEXTS
-        this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 55, 0, 'SCORE: ' + this.score, { fontStyle: 'strong', font: '19px Arial', fill: '#6368BC' });
+        this.scoreText = this.add.text(this.sys.game.canvas.width / 2 - 65, 0, 'SCORE: ' + this.score, { fontStyle: 'strong', font: '19px Arial', fill: '#6368BC' });
         this.scoreText.setDepth(1);
         this.lifesText = this.add.text(50, 10, 'X ' + this.lifesCounter, { fontStyle: 'strong', align: 'right', font: '24px Arial', fill: 'beige' });
         this.lifesText.setDepth(1);
@@ -102,14 +98,13 @@ class Firstscene extends Phaser.Scene {
         // GROUPS
         this.virusGroup = new Virus(this.physics.world, this);
         this.bacteriumGroup = new Bacterium(this.physics.world, this);
-        this.boosGroup = new Boss(this.physics.world, this);
         this.bulletsGroup = new Bullet(this.physics.world, this);
         this.powerupGroup = new Powerup(this.physics.world, this);
 
 
         // ADD COLIDERS BETWEEN SPRITES        
-        this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup, this.powerupGroup, this.boosGroup], this.hitPlayer, null, this);
-        this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup, this.boosGroup], this.hitEnemies, null, this);
+        this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup, this.powerupGroup], this.hitPlayer, null, this);
+        this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup], this.hitEnemies, null, this);
         this.physics.add.collider(this.bulletsGroup, this.powerupGroup, this.hitPowerup, null, this);
         this.physics.add.overlap(this.player, this.soapImage, this.reloadAmmo, null, this);
 
@@ -128,34 +123,24 @@ class Firstscene extends Phaser.Scene {
             }
 
 
-            if (time > this.respawn && this.score <= this.scoreLimit) {
+            if (time > this.respawn) {
 
                 // POWERUP
                 if (this.enemiesGlobalCounter % 15 == 0 && this.enemiesGlobalCounter != 0) {
                     this.powerupGroup.newItem();
                 }
 
-                if (this.score < this.scoreLimit) {
+                if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
 
-                    if (this.enemiesGlobalCounter % 5 == 0 && this.enemiesGlobalCounter != 0) {
-
-                        if (this.respawnInterval > 600) {
-                            this.respawnInterval -= 100;
-                        }
-
-                        this.addEnemy(0);
-                    }
-                    else {
-                        this.addEnemy(1);
+                    if (this.respawnInterval > 600) {
+                        this.respawnInterval -= 100;
                     }
 
+                    this.addEnemy(0);
                 }
                 else {
-                    this.addEnemy(2);
-                    this.score++;
+                    this.addEnemy(1);
                 }
-
-
                 this.respawn += this.respawnInterval;
             }
 
@@ -179,9 +164,9 @@ class Firstscene extends Phaser.Scene {
                     .anims.play('turn');
             }
         }
-        else {
+        else{
             this.backgroundMusic.stop();
-            this.scene.start('GameOver');
+            this.scene.start('GameOver');  
         }
     }
 
@@ -207,10 +192,10 @@ class Firstscene extends Phaser.Scene {
             this.invincible = true;
             this.killedSound.play();
             this.lifesCounter--;
-            if (this.lifesCounter >= 0) {
+            if (this.lifesCounter >= 0){
                 this.lifesText.setText('X ' + this.lifesCounter);
             }
-
+          
             enemy.destroy();
             player.setTint(0x1abc9c);
             this.time.addEvent({
@@ -227,7 +212,7 @@ class Firstscene extends Phaser.Scene {
                 this.bacteriumGroup.clear(true, true);
                 this.bulletsGroup.clear(true, true);
                 this.finished = 1;
-            }
+          }
 
         }
     }
@@ -236,8 +221,6 @@ class Firstscene extends Phaser.Scene {
         bullet.setVisible(false);
         bullet.setActive(false);
         bullet.destroy();
-
-      
 
         enemy.hitsToKill--;
 
@@ -251,13 +234,6 @@ class Firstscene extends Phaser.Scene {
                 this.lifesCounter++;
                 this.lifesText.setText('X ' + this.lifesCounter);
             }
-        }
-
-        if (this.score == this.scoreLimit) {
-            this.background.setTexture('backgroundFinal');
-            this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
-            this.bacteriumGroup.clear(true, true);
-            this.bulletsGroup.clear(true, true);
         }
     }
 
@@ -280,11 +256,8 @@ class Firstscene extends Phaser.Scene {
             case 0:
                 this.bacteriumGroup.newItem();
                 break;
-            case 1:
-                this.virusGroup.newItem();
-                break;
             default:
-                this.boosGroup.newItem();
+                this.virusGroup.newItem();
         }
     }
 
@@ -313,6 +286,6 @@ class Firstscene extends Phaser.Scene {
 
 }
 
-export default Firstscene;
+export default Final;
 
 
