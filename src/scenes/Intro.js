@@ -12,15 +12,16 @@ class Intro extends Phaser.Scene {
         this.load.path = './assets/';
         // LOAD IMAGES AND SPRITES
         this.load.image('splash', 'sprites/splash.png');
-        this.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
+     
       
     }
 
     create() {
-        this.splash = this.add.image(this.sys.game.canvas.width / 2, (this.sys.game.canvas.height / 2), 'splash').setDepth(1).setScale(0.35);
+        this.splash = this.add.image(this.sys.game.canvas.width / 2, (this.sys.game.canvas.height / 2 - 50), 'splash').setDepth(1).setScale(0.35);
 
-        this.introText = this.add.text(this.sys.game.canvas.width / 2, this.sys.game.canvas.height - 50, "PRESS SPACE TO START", { fontStyle: 'strong', align: 'right', font: '64px Arial', fill: 'red' }).setDepth(2).setOriginFromFrame(0,0);
-        this.introText = 'Revalia';
+        this.introText = this.add.text(this.sys.game.canvas.width / 2, this.sys.game.canvas.height - 65, "PRESS SPACE TO START", { fontStyle: 'strong', align: 'right', font: '64px Arial', fill: '#23AAE0' }).setDepth(2).setOriginFromFrame(0,0);
+        this.aimText = this.add.text(this.sys.game.canvas.width / 2, this.sys.game.canvas.height - 20, "Score 1000 points to fight final boss", { fontStyle: 'strong', align: 'right', font: '32px Arial', fill: '#23AAE0' }).setDepth(2).setOriginFromFrame(0,0);
+     
         // CREATE KEYBOARD CURSOS
         this.cursors = this.input.keyboard.createCursorKeys();
      }

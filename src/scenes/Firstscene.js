@@ -18,7 +18,7 @@ class Firstscene extends Phaser.Scene {
         this.respawnInterval = 3000;
         this.scoreText = "";
         this.score = 0;
-        this.lifesCounter = 0;
+        this.lifesCounter = 3;
         this.lifesText = "";
         this.newLife = 250; // Nueva Vida cada X puntuación
         this.enemiesGlobalCounter = 0;
@@ -30,7 +30,7 @@ class Firstscene extends Phaser.Scene {
         this.gameOverInterval = 0;
         this.counter = 10;
         this.continueText = "";
-        this.scoreLimit = 10;
+        this.scoreLimit = 1000;
 
 
 
@@ -108,11 +108,11 @@ class Firstscene extends Phaser.Scene {
 
 
         // ADD COLIDERS BETWEEN SPRITES        
-        this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup, this.powerupGroup, this.boosGroup], this.hitPlayer, null, this);
+        this.physics.add.overlap(this.player, [this.virusGroup, this.bacteriumGroup, this.powerupGroup], this.hitPlayer, null, this);
         this.physics.add.collider(this.bulletsGroup, [this.virusGroup, this.bacteriumGroup, this.boosGroup], this.hitEnemies, null, this);
         this.physics.add.collider(this.bulletsGroup, this.powerupGroup, this.hitPowerup, null, this);
         this.physics.add.overlap(this.player, this.soapImage, this.reloadAmmo, null, this);
-
+        this.physics.add.overlap(this.player, [this.boosGroup], this.hitPlayerBoss, null, this);
     }
 
     update(time, delta) {
@@ -226,6 +226,39 @@ class Firstscene extends Phaser.Scene {
                 this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
                 this.bacteriumGroup.clear(true, true);
                 this.bulletsGroup.clear(true, true);
+                this.boosGroup.clear(true, true);
+                this.finished = 1;
+            }
+
+        }
+    }
+
+    hitPlayerBoss(player, enemy) {
+
+        if (!this.invincible) {
+            this.invincible = true;
+            this.killedSound.play();
+            this.lifesCounter--;
+            if (this.lifesCounter >= 0) {
+                this.lifesText.setText('X ' + this.lifesCounter);
+            }
+
+            
+            player.setTint(0x1abc9c);
+            this.time.addEvent({
+                delay: 1000,
+                callback: () => {
+                    this.invincible = false;
+                    player.clearTint();
+                }
+            });
+
+            if (this.lifesCounter < 0) {
+
+                this.virusGroup.clear(true, true); // clear( [removeFromScene] [, destroyChild])
+                this.bacteriumGroup.clear(true, true);
+                this.bulletsGroup.clear(true, true);
+                this.boosGroup.clear(true, true);
                 this.finished = 1;
             }
 
@@ -237,9 +270,11 @@ class Firstscene extends Phaser.Scene {
         bullet.setActive(false);
         bullet.destroy();
 
-      
-
         enemy.hitsToKill--;
+
+        if (enemy.hitsToKill == 50){
+            this.boosGroup.setVelocityX((Phaser.Math.Between(0, 1) ? 550 : -550));
+        }
 
         if (enemy.hitsToKill == 0) {
             enemy.destroy();
@@ -250,6 +285,11 @@ class Firstscene extends Phaser.Scene {
             if (this.score % this.newLife == 0) {
                 this.lifesCounter++;
                 this.lifesText.setText('X ' + this.lifesCounter);
+            }
+
+            if(this.boosGroup.name == "boos"){
+                this.backgroundMusic.stop();
+                this.scene.start('Winner');
             }
         }
 

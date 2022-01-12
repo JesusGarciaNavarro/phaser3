@@ -1,8 +1,9 @@
 // IMPORTAR LA PRIMERA ESCENA
 import Firstscene from './scenes/Firstscene.js'
 import Gameover from './scenes/Gameover.js';
-import Intro from './scenes/Intro.js'
-import Final from './scenes/Final.js'
+import Intro from './scenes/Intro.js';
+import Final from './scenes/Final.js';
+import Winner from './scenes/Winner.js';
 
 const config = {
 
@@ -43,7 +44,7 @@ const config = {
         default: 'arcade',
         arcade: {
             // gravity: { y: 300 },
-            debug: true
+            debug: false
         }
     },
 
@@ -52,7 +53,8 @@ const config = {
         Intro,
         Firstscene,
         Final,
-        Gameover
+        Gameover,
+        Winner
         ]
 
 };

@@ -1,7 +1,7 @@
 export default class Boss extends Phaser.Physics.Arcade.Group {
     constructor(physicsWorld, scene) {
         super(physicsWorld, scene);
-       
+
 
     
     }
@@ -18,6 +18,7 @@ export default class Boss extends Phaser.Physics.Arcade.Group {
                     .setBounce(1, 1)
                     .setVelocityX((Phaser.Math.Between(0, 1) ? 250 : -250))
                     .hitsToKill = 100;
+        this.name = "boos";
                   
     }
 
