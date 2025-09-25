@@ -1,25 +1,25 @@
-export default class Virus extends Phaser.Physics.Arcade.Group {
+export default class Boss extends Phaser.Physics.Arcade.Group {
     constructor(physicsWorld, scene) {
         super(physicsWorld, scene);
-       
 
-      
+
+    
     }
-
 
     newItem(){
         this.create(
-                    Phaser.Math.Between(0, this.scene.scale.width), 20, 'virus')
+                    Phaser.Math.Between(0, this.scene.scale.width), 80, 'boss')
                     .setActive(true)
                     .setVisible(true)
-                    .setGravityY(300)
+                    .setGravityY(500)
                     .setCollideWorldBounds(true)
                     .setDepth(2)
-                    .setCircle(45)
+                    .setCircle(68)
                     .setBounce(1, 1)
-                    .setVelocityX((Phaser.Math.Between(0, 1) ? 100 : -100))
-                    .hitsToKill = 1;
-                   
+                    .setVelocityX((Phaser.Math.Between(0, 1) ? 250 : -250))
+                    .hitsToKill = 100;
+        this.name = "boos";
+                  
     }
 
     // preUpdate (time, delta)
